@@ -15,6 +15,8 @@ const Scalar colors[] = {		// 색 행렬값
 {255, 0, 0}
 };
 const auto NUM_COLORS = sizeof(colors) / sizeof(colors[0]);	// 색 변수형 크기 확인
+void on_mouse(int event, int x, int y, int flags, void*);
+Mat display(480, 640, CV_8UC3, Scalar(255, 255, 255));
 
 int main() {		// 메인
 
@@ -33,6 +35,7 @@ int main() {		// 메인
 
 	namedWindow("frame_cap");		// 새 윈도우
 	namedWindow("display");			// 새 윈도우
+	setMouseCallback("display", on_mouse);
 
 	while (1)		// 반복문
 	{
@@ -44,20 +47,20 @@ int main() {		// 메인
 		vector<Mat> detections;		// 벡터형 mat
 
 		// MedianBlur, Morphology
-		Mat open,close;
+		Mat open, close;
 		morphologyEx(frame, open, MORPH_OPEN, Mat());
 		morphologyEx(open, close, MORPH_CLOSE, Mat());
 		Mat median_mask;
 		medianBlur(close, median_mask, 3);
 
-		
+
 		// YCrCb
 		Mat ycrcb;
 		cvtColor(frame, ycrcb, COLOR_BGR2YCrCb);
 		inRange(ycrcb, Scalar(0, 133, 77), Scalar(255, 173, 127), ycrcb);
 		handimg = (ycrcb.size(), CV_8UC3, Scalar(0));
 		add(frame, Scalar(0), handimg, ycrcb);
-		
+
 		//Contours
 		Mat  contours_gray;
 		cvtColor(handimg, contours_gray, COLOR_BGR2GRAY);
@@ -106,7 +109,7 @@ int main() {		// 메인
 			}
 		}
 		*/
-	
+
 		// Yolo4 
 		blobFromImage(frame, blob, 1 / 255.f, Size(320, 320), Scalar(), true, false, CV_32F);
 		net.setInput(blob);
@@ -167,5 +170,23 @@ int main() {		// 메인
 	destroyAllWindows();		// 모든 윈도우 닫기
 	return 0;			// 함수 종료
 }
-
-// 마우스 이벤트 삭제
+// 클래스 마다 이벤트 발동 ?
+Point ptOld;
+void on_mouse(int event, int x, int y, int flags, void*)
+{
+	switch (event) {
+	case EVENT_LBUTTONDOWN:
+		ptOld = Point(x, y);
+		break;
+	case EVENT_LBUTTONUP:
+		break;
+	case EVENT_MOUSEMOVE:
+		if (flags & EVENT_LBUTTONDOWN) {
+			imshow("display", display);
+			ptOld = Point(x, y);
+		}
+		break;
+	default:
+		break;
+	}
+}
