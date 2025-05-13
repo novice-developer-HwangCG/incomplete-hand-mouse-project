@@ -1,4 +1,6 @@
-# incomplete-hand-mouse-project
+# This project has been abandoned
+
+## incomplete-hand-mouse-project
 
 This is an incomplete code for testing purposes.
 
